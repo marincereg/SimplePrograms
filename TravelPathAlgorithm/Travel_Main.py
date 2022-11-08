@@ -5,9 +5,11 @@ Created on Sun Oct 23 21:53:30 2022
 @author: marin
 Name : Path Algorithm
 """
-import numpy as np
+#import numpy as np
 import pandas as pd
+import time
 
+# Get the data !
 Data = pd.read_excel('Paths.xlsx')
 Cities = Data.iloc[:,0]
 DistanceMatrix_PD = Data.drop('City',axis=1)
@@ -113,78 +115,98 @@ def GetShorthestPath_ComboMeth (MatrixOfDistances,Start,End):
     return (NewBEstPath,MinDistance)
 
 def TravelAgentSearch (MatrixOfDistances,Start,End):
+    # Travel Agent Algorithm
+    # expand nodes and search for the best path until all possible paths are above best one 
     def SearchNode (MatrixOfDistances, PathArray, DistanceArray ):
+        # search node returns the paths from given node
+        # init phase
         cnt = 0
         cnt_2= 0
         NewPathArray = []
         NewPathArrayTemp = []
         NewDistanceArray = []
-        #print (PathArray)
+        # Function Loop - Search trought array
         for j in PathArray:
+            # if j is array take last element in array
             if type(j)== list:
                 j = j[-1]
             for i in range(0,len(MatrixOfDistances[1,:])):
+                # get only i greather than 0 - possible path
                 if DistanceMatrix[j,i] > 0:
+                    # take one that will not repeat itself  - example (1-0-1)
                     if i not in PathArray[cnt_2]:
-                        #print (i , PathArray[cnt_2] )
-                        #print (PathArray)
                         NewPathArrayTemp.append([PathArray[cnt_2]])
                         NewPathArrayTemp[[cnt][0]].append([i])
                         NewPathArray.append( (NewPathArrayTemp[cnt][0]) + (NewPathArrayTemp[cnt][1]))
                         NewDistanceArray.append(DistanceArray[cnt_2]+MatrixOfDistances[j,i])
                         cnt = cnt + 1
+            # Cnt_2 is for the other PathArray that are found before and should be appended to finding a path
             cnt_2 = cnt_2 + 1
         return (NewPathArray,NewDistanceArray)
+    # Main Loop of search algorithm
+    # init phase
     PathSolution = []
     DistanceSolution = []
     Start = [[Start]]
     Distance = [0]
-    
     PathArray = Start.copy()
     DistanceArray = Distance.copy()
-    
     BestDistance = 99_999
-    StopLoop = False
+    StopLoop = False  
+    # Algorithm
     while StopLoop==False:
+        # call search node
         PathArray,DistanceArray = SearchNode(MatrixOfDistances,PathArray,DistanceArray)
+        # Check quality of search and discard what could be discarded
         poped = 0
         for i in range(0,len(PathArray)):
             if End in PathArray[i-poped]:
-
+                # new best path !!! discard it from distance array
                 if DistanceArray[i-poped] < BestDistance:
                     PathSolution=(PathArray[i-poped])
                     DistanceSolution=(DistanceArray[i-poped])
                     BestDistance = DistanceSolution
-                #PathSolution.append(PathArray[i-poped])
                 PathArray.pop(i-poped)            
-                #DistanceSolution.append(DistanceArray[i-poped])
                 DistanceArray.pop(i-poped)
                 poped = poped + 1
-
-        StopLoop = False
-        for i in DistanceArray:
-            if i>BestDistance and StopLoop==False:
-                StopLoop = True
-
+            else:
+                # if some path in distance array is passing current best path discard it too
+                if DistanceArray[i-poped] > BestDistance:
+                    PathArray.pop(i-poped)            
+                    DistanceArray.pop(i-poped)
+                    poped = poped + 1
+        # Check if we are done - Checking if there is ANY path that currently have lover distance than best path    
+        if BestDistance != 99_999:
+            StopLoop = True
+            for i in DistanceArray:
+                if i < BestDistance:
+                    StopLoop = False
     return(PathSolution,DistanceSolution)
-
-
-
-pa,ds = TravelAgentSearch(DistanceMatrix,0,18)
-
      
-""" 
-ShortestPath, Distance = GetShorthestPath_ComboMeth(DistanceMatrix,21,9)
-print ("Shortest Path from " + Cities[21] + " To " + Cities[9])
+#Search Parameters
+StartNode = 0
+EndNode = 18
+
+# SLOW PATH FINDING ALGORITHM - APROX 1 min
+t1 = time.time()
+ShortestPath, Distance = GetShorthestPath_ComboMeth(DistanceMatrix,StartNode,EndNode)
+t2 = time.time()
+print ("Shortest Path from " + Cities[StartNode] + " To " + Cities[EndNode])
 for i in ShortestPath:
     print (Cities[i])
 print ("With distance of : " + str(Distance) + " Milles" )
-"""
-ShortestPath, Distance = TravelAgentSearch(DistanceMatrix,0,18)
-print ("Shortest Path from " + Cities[0] + " To " + Cities[18])
+print ("Path found in : " + str(t2-t1) + " Sec" )
+
+print ("\n" )
+# FAST PATH FINDING ALGORITHM - APROX >0.1 sec
+t1 = time.time()
+ShortestPath, Distance = TravelAgentSearch(DistanceMatrix,StartNode,EndNode)
+t2 = time.time()
+print ("Shortest Path from " + Cities[StartNode] + " To " + Cities[EndNode])
 for i in ShortestPath:
     print (Cities[i])
 print ("With distance of : " + str(Distance) + " Milles" )
+print ("Path found in : " + str(t2-t1) + " Sec" )
 
 
         
