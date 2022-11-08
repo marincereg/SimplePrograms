@@ -24,6 +24,17 @@ def CheckIfAllAreUnique (*item):
                     Unique = False
     return Unique
 
+def CheckIfAllInArrayAreUnique (Array):
+    # Check if there is duplicate in given items
+    # by default it all items are unique
+    Unique = True
+    if len(Array) > 1:
+        for i in range(0,len(Array)):
+            for j in range(i+1,len(Array)):
+                if Array[i]==Array[j]:
+                    Unique = False
+    return Unique
+
 def GetDistance (MatrixOfDistances,PathNodes):
     # get distance in nodes using matrix of distance
     distance = 0
@@ -68,8 +79,9 @@ def GetShorthestPath_ComboMeth (MatrixOfDistances,Start,End):
                         FoundNothing = False
                 # Current distance is greather than current minimal distance, Break
                 if Distance >CurBestDist:
-                        Combo.clear()
-                        break
+                    FoundNothing = True
+                    Combo.clear()
+                    break
             if FoundNothing == True:
                 Combo.clear()
         return (Combo,CurBestDist) 
@@ -99,24 +111,82 @@ def GetShorthestPath_ComboMeth (MatrixOfDistances,Start,End):
                                 NewBestDistance = MinDistance
                                 NewBEstPath = Path
     return (NewBEstPath,MinDistance)
- 
+
+def TravelAgentSearch (MatrixOfDistances,Start,End):
+    def SearchNode (MatrixOfDistances, PathArray, DistanceArray ):
+        cnt = 0
+        cnt_2= 0
+        NewPathArray = []
+        NewPathArrayTemp = []
+        NewDistanceArray = []
+        #print (PathArray)
+        for j in PathArray:
+            if type(j)== list:
+                j = j[-1]
+            for i in range(0,len(MatrixOfDistances[1,:])):
+                if DistanceMatrix[j,i] > 0:
+                    if i not in PathArray[cnt_2]:
+                        #print (i , PathArray[cnt_2] )
+                        #print (PathArray)
+                        NewPathArrayTemp.append([PathArray[cnt_2]])
+                        NewPathArrayTemp[[cnt][0]].append([i])
+                        NewPathArray.append( (NewPathArrayTemp[cnt][0]) + (NewPathArrayTemp[cnt][1]))
+                        NewDistanceArray.append(DistanceArray[cnt_2]+MatrixOfDistances[j,i])
+                        cnt = cnt + 1
+            cnt_2 = cnt_2 + 1
+        return (NewPathArray,NewDistanceArray)
+    PathSolution = []
+    DistanceSolution = []
+    Start = [[Start]]
+    Distance = [0]
+    
+    PathArray = Start.copy()
+    DistanceArray = Distance.copy()
+    
+    BestDistance = 99_999
+    StopLoop = False
+    while StopLoop==False:
+        PathArray,DistanceArray = SearchNode(MatrixOfDistances,PathArray,DistanceArray)
+        poped = 0
+        for i in range(0,len(PathArray)):
+            if End in PathArray[i-poped]:
+
+                if DistanceArray[i-poped] < BestDistance:
+                    PathSolution=(PathArray[i-poped])
+                    DistanceSolution=(DistanceArray[i-poped])
+                    BestDistance = DistanceSolution
+                #PathSolution.append(PathArray[i-poped])
+                PathArray.pop(i-poped)            
+                #DistanceSolution.append(DistanceArray[i-poped])
+                DistanceArray.pop(i-poped)
+                poped = poped + 1
+
+        StopLoop = False
+        for i in DistanceArray:
+            if i>BestDistance and StopLoop==False:
+                StopLoop = True
+
+    return(PathSolution,DistanceSolution)
+
+
+
+pa,ds = TravelAgentSearch(DistanceMatrix,0,18)
+
+     
+""" 
 ShortestPath, Distance = GetShorthestPath_ComboMeth(DistanceMatrix,21,9)
 print ("Shortest Path from " + Cities[21] + " To " + Cities[9])
 for i in ShortestPath:
     print (Cities[i])
 print ("With distance of : " + str(Distance) + " Milles" )
-
-    
-                        
-            
-            
-        
-    
-        
-    
+"""
+ShortestPath, Distance = TravelAgentSearch(DistanceMatrix,0,18)
+print ("Shortest Path from " + Cities[0] + " To " + Cities[18])
+for i in ShortestPath:
+    print (Cities[i])
+print ("With distance of : " + str(Distance) + " Milles" )
 
 
-    
         
         
         
