@@ -118,7 +118,7 @@ def TravelAgentSearch (MatrixOfDistances,Start,End):
     # Travel Agent Algorithm
     # expand nodes and search for the best path until all possible paths are above best one 
     def SearchNode (MatrixOfDistances, PathArray, DistanceArray ):
-        # search node returns the paths from given node
+        # search node returns the paths from given nodes
         # init phase
         cnt = 0
         cnt_2= 0
