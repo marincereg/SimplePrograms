@@ -8,12 +8,20 @@ Name : Path Algorithm
 #import numpy as np
 import pandas as pd
 import time
+import cv2
+from PIL import Image
 
 # Get the data !
-Data = pd.read_excel('Paths.xlsx')
+Data = pd.read_excel('US_HIGHWAY_PATHS.xlsx')
 Cities = Data.iloc[:,0]
-DistanceMatrix_PD = Data.drop('City',axis=1)
+DistanceMatrix_PD = Data.drop('Cities',axis=1)
 DistanceMatrix = DistanceMatrix_PD.to_numpy()
+
+CityCordinateTemp = pd.read_excel('US_CITIES_CORDINATES.xlsx')
+
+im = Image.open(r"US Highway Map.png") 
+
+
 
 def CheckIfAllAreUnique (*item):
     # Check if there is duplicate in given items
@@ -184,9 +192,13 @@ def TravelAgentSearch (MatrixOfDistances,Start,End):
     return(PathSolution,DistanceSolution)
      
 #Search Parameters
-StartNode = 0
-EndNode = 18
+print ("Cities selection :")
+print (Cities)
 
+StartNode = int(input("Select your Start city : "))
+EndNode = int(input("Select your End city : "))
+
+"""
 # SLOW PATH FINDING ALGORITHM - APROX 1 min
 t1 = time.time()
 ShortestPath, Distance = GetShorthestPath_ComboMeth(DistanceMatrix,StartNode,EndNode)
@@ -196,7 +208,7 @@ for i in ShortestPath:
     print (Cities[i])
 print ("With distance of : " + str(Distance) + " Milles" )
 print ("Path found in : " + str(t2-t1) + " Sec" )
-
+"""
 print ("\n" )
 # FAST PATH FINDING ALGORITHM - APROX >0.1 sec
 t1 = time.time()
@@ -209,7 +221,7 @@ print ("With distance of : " + str(Distance) + " Milles" )
 print ("Path found in : " + str(t2-t1) + " Sec" )
 
 
-        
+
         
         
 
